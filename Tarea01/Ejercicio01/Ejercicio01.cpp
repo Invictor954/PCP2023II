@@ -12,18 +12,24 @@
 
 typedef std::vector<std::vector<int>> Matrix;
 
-void printMatrix(Matrix mxm, int lim);
+void printMatrix(const Matrix &mxm, int lim);
 
-void fillMatrix(Matrix& mxm);
+void fillMatrix(Matrix &mxm);
 
-Matrix multiplyMatrix(Matrix axa, Matrix bxb);
+inline Matrix multiplyMatrix(const Matrix &axa, const Matrix &bxb);
 
-Matrix multiplyMatrixParallel(Matrix axa, Matrix bxb);
+inline Matrix multiplyMatrixParallel(const Matrix &axa, const Matrix &bxb);
+
+Matrix addMatrix(const Matrix &axa, const Matrix &bxb);
+
+Matrix subMatrix(const Matrix &axa, const Matrix &bxb);
+
+Matrix strassenMultiply(const Matrix &axa, const Matrix &bxb);
 
 int main()
 {
-	const int row{ 30 };
-	const int col{ 30 };
+	const int row{ 1000 };
+	const int col{ 1000 };
 
 	Matrix mxm(row, std::vector<int>(col));
 	fillMatrix(mxm);
@@ -51,6 +57,14 @@ int main()
 	printMatrix(cxc, 2);
 	std::cout << "time : " << elapsed_time.count() << " s\n";
 
+	//strassen
+	//start = std::chrono::high_resolution_clock::now();
+	//cxc = strassenMultiply(axa, bxb);
+	//end = std::chrono::high_resolution_clock::now();
+	//elapsed_time = end - start;
+	//printMatrix(cxc, 2);
+	//std::cout << "time : " << elapsed_time.count() << " s\n";
+
 	return 0;
 }
 
@@ -66,7 +80,7 @@ void fillMatrix(Matrix& mxm)
 	}
 }
 
-Matrix multiplyMatrix(Matrix axa, Matrix bxb)
+inline Matrix multiplyMatrix(const Matrix &axa, const Matrix &bxb)
 {
 	Matrix cxc(axa.size(), std::vector<int>(bxb[0].size(), 0));
 	for (int i{ 0 }; i < axa.size(); i++)
@@ -82,7 +96,7 @@ Matrix multiplyMatrix(Matrix axa, Matrix bxb)
 	return cxc;
 }
 
-Matrix multiplyMatrixParallel(Matrix axa, Matrix bxb)
+inline Matrix multiplyMatrixParallel(const Matrix &axa, const Matrix &bxb)
 {
 	Matrix cxc(axa.size(), std::vector<int>(bxb[0].size(), 0));
 #pragma omp parallel num_threads(omp_get_max_threads())
@@ -105,7 +119,92 @@ Matrix multiplyMatrixParallel(Matrix axa, Matrix bxb)
 	return cxc;
 }
 
-void printMatrix(Matrix mxm, int lim)
+Matrix addMatrix(const Matrix &axa, const Matrix &bxb)
+{
+	int n = axa.size();
+	Matrix cxc(n, std::vector<int>(n, 0));
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			cxc[i][j] = axa[i][j] + bxb[i][j];
+		}
+	}
+	return cxc;
+}
+
+Matrix subMatrix(const Matrix& axa, const Matrix& bxb)
+{
+	int n = axa.size();
+	Matrix cxc(n, std::vector<int>(n, 0));
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			cxc[i][j] = axa[i][j] - bxb[i][j];
+		}
+	}
+	return cxc;
+}
+
+Matrix strassenMultiply(const Matrix& axa, const Matrix& bxb)
+{
+	int n = axa.size();
+	if (n == 1) {
+		Matrix cxc(1, std::vector<int>(1, 0));
+		cxc[0][0] = axa[0][0] * bxb[0][0];
+		return cxc;
+	}
+
+	int halfSize = n / 2;
+
+	Matrix A11(halfSize, std::vector<int>(halfSize, 0));
+	Matrix A12(halfSize, std::vector<int>(halfSize, 0));
+	Matrix A21(halfSize, std::vector<int>(halfSize, 0));
+	Matrix A22(halfSize, std::vector<int>(halfSize, 0));
+
+	Matrix B11(halfSize, std::vector<int>(halfSize, 0));
+	Matrix B12(halfSize, std::vector<int>(halfSize, 0));
+	Matrix B21(halfSize, std::vector<int>(halfSize, 0));
+	Matrix B22(halfSize, std::vector<int>(halfSize, 0));
+
+	for (int i = 0; i < halfSize; ++i) {
+		for (int j = 0; j < halfSize; ++j) {
+			A11[i][j] = axa[i][j];
+			A12[i][j] = axa[i][j + halfSize];
+			A21[i][j] = axa[i + halfSize][j];
+			A22[i][j] = axa[i + halfSize][j + halfSize];
+
+			B11[i][j] = bxb[i][j];
+			B12[i][j] = bxb[i][j + halfSize];
+			B21[i][j] = bxb[i + halfSize][j];
+			B22[i][j] = bxb[i + halfSize][j + halfSize];
+		}
+	}
+
+	Matrix P1 = strassenMultiply(A11, subMatrix(B12, B22));
+	Matrix P2 = strassenMultiply(addMatrix(A11, A12), B22);
+	Matrix P3 = strassenMultiply(addMatrix(A21, A22), B11);
+	Matrix P4 = strassenMultiply(A22, subMatrix(B21, B11));
+	Matrix P5 = strassenMultiply(addMatrix(A11, A22), addMatrix(B11, B22));
+	Matrix P6 = strassenMultiply(subMatrix(A12, A22), addMatrix(B21, B22));
+	Matrix P7 = strassenMultiply(subMatrix(A11, A21), addMatrix(B11, B12));
+
+	Matrix C11 = subMatrix(addMatrix(addMatrix(P5, P4), P6), P2);
+	Matrix C12 = addMatrix(P1, P2);
+	Matrix C21 = addMatrix(P3, P4);
+	Matrix C22 = subMatrix(subMatrix(addMatrix(P5, P1), P3), P7);
+
+	Matrix cxc(n, std::vector<int>(n, 0));
+	for (int i = 0; i < halfSize; ++i) {
+		for (int j = 0; j < halfSize; ++j) {
+			cxc[i][j] = C11[i][j];
+			cxc[i][j + halfSize] = C12[i][j];
+			cxc[i + halfSize][j] = C21[i][j];
+			cxc[i + halfSize][j + halfSize] = C22[i][j];
+		}
+	}
+
+	return cxc;
+}
+
+void printMatrix(const Matrix &mxm, int lim)
 {
 	for (int i{ 0 }; i < lim; i++)
 	{
