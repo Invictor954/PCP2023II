@@ -9,6 +9,10 @@
 #include <ctime>
 #include <omp.h>
 #include <chrono>
+//Donwload Eigen to use this library from :
+//											http://eigen.tuxfamily.org/index.php?title=Main_Page#Download
+//
+#include <Eigen/Dense>
 
 typedef std::vector<std::vector<int>> Matrix;
 
@@ -25,6 +29,8 @@ Matrix addMatrix(const Matrix &axa, const Matrix &bxb);
 Matrix subMatrix(const Matrix &axa, const Matrix &bxb);
 
 Matrix strassenMultiply(const Matrix &axa, const Matrix &bxb);
+
+
 
 int main()
 {
@@ -47,7 +53,7 @@ int main()
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed_time = end - start;
 	printMatrix(rxr, 2);
-	std::cout << "time : " << elapsed_time.count() << " s\n\n\n\n";
+	std::cout << "Secuential time : \t" << elapsed_time.count() << " s\n\n\n\n";
 
 	//parallel
 	start = std::chrono::high_resolution_clock::now();
@@ -55,7 +61,26 @@ int main()
 	end = std::chrono::high_resolution_clock::now();
 	elapsed_time = end - start;
 	printMatrix(cxc, 2);
-	std::cout << "time : " << elapsed_time.count() << " s\n";
+	std::cout << "Parallel time : \t" << elapsed_time.count() << " s\n\n\n\n";
+
+	//Eigen
+	
+	Eigen::MatrixXd oxo(row, col);
+	Eigen::MatrixXd pxp(row, col);
+	for (int i = 0; i < row; ++i) {
+		for (int j = 0; j < col; ++j) {
+			oxo(i, j) = mxm[i][j];
+			pxp(i, j) = nxn[i][j];
+		}
+	}
+	
+	Eigen::MatrixXd qxq(row, col);
+	start = std::chrono::high_resolution_clock::now();
+	qxq = oxo * pxp;
+	end = std::chrono::high_resolution_clock::now();
+	elapsed_time = end - start;
+	std::cout << qxq.block(0, 0, 2, 2) << "\n\n";
+	std::cout << "Eigen time : \t" << elapsed_time.count() << " s\n";
 
 	//strassen
 	//start = std::chrono::high_resolution_clock::now();
@@ -75,7 +100,7 @@ void fillMatrix(Matrix& mxm)
 	{
 		for (int j{ 0 }; j < mxm[0].size(); j++)
 		{
-			mxm[i][j] = std::rand();
+			mxm[i][j] = std::rand()% 100;
 		}
 	}
 }
