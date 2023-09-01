@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <omp.h>
+#include <stdlib.h>
+#include <time.h> 
 
 #define MAX 10000000
 int vector[MAX];
@@ -98,9 +100,6 @@ int main()
 	srand(time(NULL));
 	double inicio, duracion;
 
-	inicio = omp_get_wtime();
-
-
 	llenarVector(vector);
 
 	desordenar(vector);
@@ -114,9 +113,8 @@ int main()
 	printf("\nquicksort secuencial:%lf segundos\n", duracion);
 	//Se desordena el vector nuevamente para que pase por el metodo paralelo
 	desordenar(vector);
+	imprimirVector(vector, 10);
 	inicio = omp_get_wtime();
-	quicksortParalela(vector, 0, MAX - 1);
-	quicksortParalela(vector, 0, MAX - 1);
 	quicksortParalela(vector, 0, MAX - 1);
 	duracion = omp_get_wtime() - inicio;
 	//Imprimir los cantidad de elementos deseados del vector depsues de usar el metodo paralelo
