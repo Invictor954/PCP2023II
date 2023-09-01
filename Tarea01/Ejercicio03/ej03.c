@@ -1,5 +1,5 @@
 //Desarrolla un algoritmo de ordenamiento(como Quicksort o Mergesort)
-//Y aplicalo a un arreglo grande de números.
+//Y aplicalo a un arreglo grande de numeros.
 //Implementa versiones secuenciales y paralelas para comparar el rendimiento.
 //Puedes paralelizar la subdivision de las particiones y el proceso de mezcla.
 
