@@ -1,0 +1,9 @@
+Evaluación de la mejora utilizando computación paralela
+
+File: ej01.c 
+Cpu: AMD Ryzen 5 2600
+Tamaño de las matrices: 1000
+Numero de hilos: 10
+Tiempo en secuencial: 4.818
+Tiempo en paralelo: 1.000
+Mejora: En paralelo, el programa es 4.8 veces mas rapido 
