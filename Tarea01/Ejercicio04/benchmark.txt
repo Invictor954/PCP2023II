@@ -1,6 +1,9 @@
 Evaluación de la mejora utilizando computación paralela
+
+File: ej04.c 
 Cpu: AMD Ryzen 5 2600
 Cantidad de numeros aleatorios generados: 100 000 000
+Numero de hilos: 10
 Tiempo en secuencial: 4.1
 Tiempo en paralelo: 0.64
 Mejora: En paralelo, el programa es 6.406 veces mas rapido 
