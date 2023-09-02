@@ -1,23 +1,17 @@
-//Realiza una simulacion de Monte Carlo para estimar el area de un circulo
-//Utilizando puntos aleatorios dentro de un cuadrado.
-//Calcula el valor de ? basandote en el area estimada.
-//Implementa una version secuencial y paralela utilizando multiples hilos para generar puntos aleatorios.
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <omp.h>
 
-#define MAX 100000000
+#define MAX 10000000
 
-int monteCarlo(int ini, int fin)
+int monteCarlo(int ini, int fin, unsigned int *semilla)
 {
-    srand(time(NULL));
-
     int puntosCirculo = 0;
     for (int i = ini; i < fin; i++)
     {
-        double x = (double)rand() / RAND_MAX;
-        double y = (double)rand() / RAND_MAX;
+        double x = (double)rand_r(semilla) / RAND_MAX;
+        double y = (double)rand_r(semilla) / RAND_MAX;
         if (x * x + y * y <= 1)
         {
             puntosCirculo++;
@@ -29,13 +23,14 @@ int monteCarlo(int ini, int fin)
 int main() {
 
     double inicio, duracion;
+    unsigned int semilla = time(NULL);
 
     inicio = omp_get_wtime();
-    double aproxPi = 4.0 * monteCarlo(0, MAX) / MAX;
+    double aproxPi = 4.0 * monteCarlo(0, MAX, &semilla) / MAX;
     duracion = omp_get_wtime() - inicio;
 
-    printf("Estimacion de Pi: %lf\n", aproxPi);
-    printf("La duracion es = %lf segundos\n", duracion);
+    std::cout << "Estimacion de Pi en secuencial : " << aproxPi << std::endl;
+    std::cout << "La duracion es = " << duracion << " segundos" << std::endl;
 
     int bloque = MAX / 10;
     int sumas[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -44,8 +39,8 @@ int main() {
 #pragma omp parallel num_threads(10)
     {
         int hilo = omp_get_thread_num();
-        sumas[hilo] = monteCarlo(hilo * bloque, (hilo + 1) * bloque);
-
+        unsigned int semillaLocal = semilla + hilo;
+        sumas[hilo] = monteCarlo(hilo * bloque, (hilo + 1) * bloque, &semillaLocal);
     }
     double total = 0.0;
     for (int i = 0; i < 10; i++)
@@ -55,7 +50,7 @@ int main() {
     aproxPi = 4.0 * total / MAX;
     duracion = omp_get_wtime() - inicio;
 
-    printf("Estimacion de Pi: %lf\n", aproxPi);
-    printf("La duracion es = %lf segundos\n", duracion);
+    std::cout << "Estimacion de Pi en paralelo: " << aproxPi << std::endl;
+    std::cout << "La duracion es = " << duracion << " segundos" << std::endl;
     return 0;
 }
