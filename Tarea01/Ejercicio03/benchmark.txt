@@ -1,9 +1,9 @@
 Evaluación de la mejora utilizando computación paralela
 
-File: ej01.c 
+File: ej03.c 
 Cpu: AMD Ryzen 5 2600
-Tamaño de las matrices: 1000
+Tamaño del vector: 1000
 Numero de hilos: 10
 Tiempo en secuencial: 5.242
-Tiempo en paralelo: 
-Mejora: En paralelo, el programa es 4.8 veces mas rapido 
+Tiempo en paralelo: 0.0225
+Mejora: En paralelo, el programa es 232.97 veces mas rapido 
