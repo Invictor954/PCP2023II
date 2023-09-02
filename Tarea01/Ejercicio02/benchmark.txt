@@ -1,0 +1,9 @@
+Evaluación de la mejora utilizando computación paralela
+
+File: ej02.c 
+Cpu: AMD Ryzen 5 2600
+Tamaño del arreglo: 100 000 000
+Numero de hilos: 10
+Tiempo en secuencial: 1.6852
+Tiempo en paralelo: 0.983
+Mejora: En paralelo, el programa es 1.714 veces mas rapido 
