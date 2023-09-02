@@ -1,24 +1,22 @@
-//Realiza una simulacion de Monte Carlo para estimar el area de un circulo
-//Utilizando puntos aleatorios dentro de un cuadrado.
-//Calcula el valor de ? basandote en el area estimada.
-//Implementa una version secuencial y paralela utilizando multiples hilos para generar puntos aleatorios.
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <omp.h>
-
 #define MAX 100000000
+#define NUM_THREADS 10
 
-int monteCarlo(int ini, int fin)
-{
-    srand(time(NULL));
-
+int GenerarAleatorios(int cantidad, int seedmultiply)
+{   
+    /* Multiplicamos el seed por un factor para garantizar que cada hilos obtenga un set distinto de numeros aleatorios */
+    srand(time(NULL)*seedmultiply);
     int puntosCirculo = 0;
-    for (int i = ini; i < fin; i++)
+    double x,y,z;
+    for (int i = 0; i < cantidad; i++)
     {
-        double x = (double)rand() / RAND_MAX;
-        double y = (double)rand() / RAND_MAX;
-        if (x * x + y * y <= 1)
+        x = (double)rand()/RAND_MAX;
+        y = (double)rand()/RAND_MAX;
+        z = x * x + y * y;
+        if (z <= 1)
         {
             puntosCirculo++;
         }
@@ -30,32 +28,34 @@ int main() {
 
     double inicio, duracion;
 
+    /** Evaluacion secuencial **/
     inicio = omp_get_wtime();
-    double aproxPi = 4.0 * monteCarlo(0, MAX) / MAX;
+    double PI = 4.0 * GenerarAleatorios(MAX,1) / MAX;
     duracion = omp_get_wtime() - inicio;
 
-    printf("Estimacion de Pi: %lf\n", aproxPi);
-    printf("La duracion es = %lf segundos\n", duracion);
+    printf("Valor de pi calculado: %f \n", PI);
+    printf("Resultado de la simulacion secuencial: %f \n", duracion);
 
-    int bloque = MAX / 10;
-    int sumas[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
+    /** Evaluacion paralela **/
+    double total=0;
+    double sumas[NUM_THREADS];
+    
     inicio = omp_get_wtime();
-#pragma omp parallel num_threads(10)
+    #pragma omp parallel num_threads(NUM_THREADS)
     {
         int hilo = omp_get_thread_num();
-        sumas[hilo] = monteCarlo(hilo * bloque, (hilo + 1) * bloque);
-
+        sumas[hilo] = GenerarAleatorios(MAX/NUM_THREADS, hilo);
     }
-    double total = 0.0;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < NUM_THREADS; i++)
     {
         total += sumas[i];
     }
-    aproxPi = 4.0 * total / MAX;
+    PI = 4.0 * total / MAX;
     duracion = omp_get_wtime() - inicio;
+    
+    printf("Valor de pi calculado: %f \n", PI);
+    printf("Resultado de la simulacion paralela: %f \n", duracion);
 
-    printf("Estimacion de Pi: %lf\n", aproxPi);
-    printf("La duracion es = %lf segundos\n", duracion);
+
     return 0;
 }
