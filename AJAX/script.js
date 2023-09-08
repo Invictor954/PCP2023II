@@ -5,7 +5,6 @@ $(document).ready(function() {
             url: 'https://v2.jokeapi.dev/joke/Any',
             success: function(data) {
                 let chiste = "";
-
                 if (data.type === "single") {
                     chiste = data.joke;
                 } else {
@@ -21,29 +20,28 @@ $(document).ready(function() {
     });
 });
 
-// ... (resto del código anterior) ...
+$("#obtenerPokemon").click(function() {
+    let nombrePokemon = $("#pokemonNombre").val().toLowerCase(); // Converción a minúsculas porque la API acepta en minusculas.
 
-$("#obtenerClima").click(function() {
-    let ciudad = $("#ciudad").val();
-
-    if (ciudad) {
+    if (nombrePokemon) {
         $.ajax({
             type: 'GET',
-            url: `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&appid=TU_CLAVE_DE_API&units=metric&lang=es`,
+            url: `https://pokeapi.co/api/v2/pokemon/${nombrePokemon}`,
             success: function(data) {
-                let infoClima = `
-                    Ciudad: ${data.name} <br>
-                    Temperatura: ${data.main.temp}°C <br>
-                    Descripción: ${data.weather[0].description}
+                let infoPokemon = `
+                    Nombre: ${data.name} <br>
+                    Tipo: ${data.types[0].type.name} <br>
+                    Altura: ${data.height / 10} m <br>
+                    Peso: ${data.weight / 10} kg
                 `;
 
-                $("#clima").html(infoClima);
+                $("#infoPokemon").html(infoPokemon);
             },
             error: function() {
-                $("#clima").html("Error al obtener la información del clima, Asegurese de escribir correctamente el nombre del País");
+                $("#infoPokemon").html("Error al obtener la información del Pokémon. Asegúrate de escribir el nombre correctamente.");
             }
         });
     } else {
-        $("#clima").html("Por favor, ingresa una ciudad.");
+        $("#infoPokemon").html("Por favor, ingresa el nombre de un Pokémon.");
     }
 });

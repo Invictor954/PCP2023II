@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ejemplo AJAX</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="chiste">
+      <button id="obtenerChiste">Obtener chiste</button>
+      <div id="chiste"></div>
+    </div>
+    <div class="pokemon">
+      <input
+        type="text"
+        id="pokemonNombre"
+        placeholder="Ingresa el nombre de un Pokémon"
+      />
+      <button id="obtenerPokemon">Obtener información de Pokémon</button>
+      <div id="infoPokemon"></div>
+    </div>
 
-<button id="obtenerChiste">Obtener chiste</button>
-<div id="chiste"></div>
-<input type="text" id="ciudad" placeholder="Ingresa una ciudad">
-<button id="obtenerClima">Obtener clima</button>
-<div id="clima"></div>
-
-<script src="script.js"></script>
-
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
