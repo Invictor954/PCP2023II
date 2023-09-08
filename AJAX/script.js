@@ -2,7 +2,7 @@ $(document).ready(function() {
     $("#obtenerChiste").click(function() {
         $.ajax({
             type: 'GET',
-            url: 'https://v2.jokeapi.dev/joke/Any',
+            url: 'https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,racist,sexist,explicit',
             success: function(data) {
                 let chiste = "";
                 if (data.type === "single") {
@@ -38,7 +38,7 @@ $("#obtenerPokemon").click(function() {
                 $("#infoPokemon").html(infoPokemon);
             },
             error: function() {
-                $("#infoPokemon").html("Error al obtener la información del Pokémon. Asegúrate de escribir el nombre correctamente.");
+                $("#infoPokemon").html("<span class='placeholder-text'>Error al obtener la información del Pokémon. Asegúrate de escribir el nombre correctamente en minusculas.</span>");
             }
         });
     } else {
