@@ -1,0 +1,33 @@
+﻿@model List<Product>
+<asp:ScriptManager runat="server"></asp:ScriptManager>
+<h1>Product</h1>
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#reload-link").click(function (e) {
+                e.preventDefault(); // Evita el comportamiento predeterminado del enlace.
+
+                // Realiza una llamada Ajax para obtener la nueva lista de productos.
+                $.ajax({
+                    url: '@Url.Action("Reload", "AJAXProductController")', // Reemplaza "Product" con el nombre de tu controlador.
+                    type: 'GET',
+                    success: function (data) {
+                        // Actualiza el contenido del contenedor con la nueva lista.
+                        $("#productList").html(data);
+                    },
+                    error: function () {
+                        alert("Error al recargar la lista.");
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<p>
+    <a asp-action="Reload" class="reload-link">Reload</a>
+</p>
+<div class="main-content">
+    @Html.Partial("_AJAXProducts")
+</div>
